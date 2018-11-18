@@ -1,0 +1,15 @@
+[Unit]
+Description=Aylien Technical Assessment Script
+After=network-online.target
+
+[Service]
+User=adil
+WorkingDirectory=/var/www/aylien/app/
+ExecStart=/usr/bin/python3 app.py --port 8080 --monitor 8081
+KillMode=process
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

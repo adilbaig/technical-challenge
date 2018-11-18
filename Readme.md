@@ -1,3 +1,36 @@
+# Solution
+I've focused on solving:
+
+1. We would like to deploy this service to a cloud provider, and automate the deployment.
+2. We would like to introduce some self-healing capabilities, e.g. restart after a crash.
+
+There's a number of ways to do this. It differs based on what cloud providers you use and what CI/CD tool you have. The two most common methods are to build images using orchestrators (like Ansible) on the cloud or build Docker images. In this solution I chose to build self-contained images using [Packer](https://packer.io). The advantage over docker is:
+ 1. Packer can produce both cloud-provider images and docker files. It is cloud-provider agnostic too, (unlike say AWS CloudFormation).
+ 2. The Docker orchestration story has changed over time (Swarm yesterday, Kubernetes today) where AWS rollouts are quite tried and true.
+ 3. Another advantage of using a native image is it can run multiple processes. So, for example, source code, metrics collectors and local crons can be deployed together.
+
+For self-healing I chose to provide a [systemd service file](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/sect-managing_services_with_systemd-unit_files). Systemd files can be used to orchestrate startup when basic dependencies are available, and have a fine-grained reboot and give-up policy.
+
+## MakeFile
+I modified the Makefile to use a Python virtualenv. That's just basic hygiene.
+
+## A note on the other requirements
+
+- We would like a solution that is stable, secure and maintainable.
+This was quite broad. I assume for a product to be "production ready" it should include basic style checks, unit/integration tests and documentation. In the essence of time, I skipped this. 
+
+- We would like to have monitoring that helps to identify issues.
+Monitoring can be integrated using 3 points. 
+
+1. Emit statsd metrics to collect samples of application events over time. These provide the raw data for dashboarding and can be fodder for alerts. 
+2. Have a private url, like /stats that shows the state of the application internally. This can check if the application is able to work with it's dependencies. For ex: can the service connect to Postgres even though postgres is up? . An error in this service can indicate some sort of hard failure and can be hooked up to an outage dashboard. Ex: https://status.github.com/messages
+3. Logging to a centralized system, like Graylog or Sentry. This will allow us to alert admins on outages. 
+
+
+- We would like an efficient (fast) algorithm.
+The algorithm seemed like a combinatorial problem. I don't see an obviously faster algorthm, although an "improved" implementation would avoid recursive structures and inner loops. Again, in the essence of time, I skipped this. 
+
+
 # Paint batch optimizer service
 
 ## Purpose

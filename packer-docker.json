@@ -1,0 +1,15 @@
+{
+    "builders": [
+    {
+        "type": "docker",
+        "image": "tiangolo/uwsgi-nginx:python3.6",
+        "commit": true,
+        "changes": [
+            "USER www-data",
+            "WORKDIR /app",
+            "VOLUME ./app /app/",
+            "EXPOSE 80",
+            "RUN pip install -r requirements.txt"
+          ]
+    }]
+}
